@@ -182,16 +182,6 @@ http://localhost:5000
 
 ---
 
-## 👨‍💻 Author
-
-Developed by **Anmol Mehra**
-
-B.Tech Computer Science & Engineering
-
-ITER, Siksha 'O' Anusandhan University
-
----
-
 ## 📄 License
 
 This project is developed for educational and learning purposes.
