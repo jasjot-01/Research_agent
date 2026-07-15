@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ agent_name }} · AI Research Assistant</title>
+
+  <!-- Bootstrap 5.3 -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <span class="brand-icon"><i class="bi bi-cpu-fill"></i></span>
+      <div>
+        <div class="brand-name">{{ agent_name }}</div>
+        <div class="brand-sub">IBM watsonx.ai · Granite</div>
+      </div>
+    </div>
+    <button class="btn-icon sidebar-toggle d-lg-none" id="sidebarClose">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" data-tab="chat">
+      <i class="bi bi-chat-dots-fill"></i><span>Research Chat</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="literature">
+      <i class="bi bi-journals"></i><span>Literature Search</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="summarize">
+      <i class="bi bi-file-text-fill"></i><span>Paper Summarizer</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="citations">
+      <i class="bi bi-bookmark-star-fill"></i><span>Citations</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="draft">
+      <i class="bi bi-pencil-square"></i><span>Draft Section</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="ideas">
+      <i class="bi bi-lightbulb-fill"></i><span>Research Ideas</span>
+    </a>
+    <a href="#" class="nav-item" data-tab="projects">
+      <i class="bi bi-folder2-open"></i><span>Projects</span>
+    </a>
+  </nav>
+
+  <!-- Sidebar footer -->
+  <div class="sidebar-footer">
+    <div class="meta-badge">
+      <i class="bi bi-mortarboard-fill"></i>
+      <span>{{ citation_style }} · {{ domain }}</span>
+    </div>
+    <button class="btn-icon" id="themeToggle" title="Toggle dark mode">
+      <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════ -->
+<div class="main-content" id="mainContent">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="btn-icon d-lg-none" id="sidebarOpen">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="topbar-title" id="topbarTitle">
+      <i class="bi bi-chat-dots-fill me-2"></i>Research Chat
+    </div>
+    <div class="topbar-actions">
+      <span class="status-dot" id="statusDot" title="Status"></span>
+      <button class="btn-outline-sm" id="clearHistoryBtn">
+        <i class="bi bi-trash3"></i> Clear
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── TAB: CHAT ─────────────────────────────── -->
+  <section class="tab-pane active" id="tab-chat">
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <!-- Welcome card -->
+        <div class="welcome-card">
+          <div class="welcome-icon"><i class="bi bi-robot"></i></div>
+          <h2>Welcome to {{ agent_name }}</h2>
+          <p>Your AI-powered research companion. Ask me anything about research, literature, methodology, or let me help you draft your next paper section.</p>
+          <div class="quick-prompts" id="quickPrompts">
+            <button class="chip" data-msg="What are the latest trends in transformer-based NLP models?">
+              <i class="bi bi-graph-up-arrow"></i> NLP Trends
+            </button>
+            <button class="chip" data-msg="Explain the difference between qualitative and quantitative research methods.">
+              <i class="bi bi-bar-chart-steps"></i> Research Methods
+            </button>
+            <button class="chip" data-msg="How do I write a strong research hypothesis?">
+              <i class="bi bi-question-circle"></i> Hypothesis Writing
+            </button>
+            <button class="chip" data-msg="Summarize key challenges in climate change modeling research.">
+              <i class="bi bi-globe-americas"></i> Climate Research
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat input -->
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <textarea id="chatInput" class="chat-input"
+                    placeholder="Ask a research question, request a summary, or seek guidance…"
+                    rows="1" maxlength="4000"></textarea>
+          <div class="chat-input-actions">
+            <span class="char-counter" id="charCounter">0 / 4000</span>
+            <button class="send-btn" id="sendBtn" title="Send">
+              <i class="bi bi-send-fill"></i>
+            </button>
+          </div>
+        </div>
+        <div class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: LITERATURE SEARCH ────────────────── -->
+  <section class="tab-pane" id="tab-literature">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-journals me-2"></i>Literature Search</h3>
+        <p class="text-muted">Discover key papers, themes, and research gaps for any topic.</p>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Research Query</label>
+            <input type="text" class="form-control form-control-lg" id="litQuery"
+                   placeholder="e.g., federated learning privacy in healthcare" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Domain</label>
+            <select class="form-select form-select-lg" id="litDomain">
+              <option value="">General / All</option>
+              <option value="Computer Science & AI">Computer Science & AI</option>
+              <option value="Biomedical Sciences">Biomedical Sciences</option>
+              <option value="Physics & Engineering">Physics & Engineering</option>
+              <option value="Social Sciences">Social Sciences</option>
+              <option value="Climate & Environment">Climate & Environment</option>
+              <option value="Economics & Finance">Economics & Finance</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Psychology">Psychology</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Year From</label>
+            <input type="number" class="form-control" id="litYearFrom"
+                   placeholder="2018" min="1900" max="2030" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Year To</label>
+            <input type="number" class="form-control" id="litYearTo"
+                   placeholder="2024" min="1900" max="2030" />
+          </div>
+          <div class="col-12">
+            <button class="btn-primary-action" id="litSearchBtn">
+              <i class="bi bi-search me-2"></i>Search Literature
+            </button>
+          </div>
+        </div>
+        <div class="result-box mt-4" id="litResults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: SUMMARIZER ───────────────────────── -->
+  <section class="tab-pane" id="tab-summarize">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-file-text-fill me-2"></i>Paper Summarizer</h3>
+        <p class="text-muted">Paste abstract or full text to get an AI-generated summary.</p>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Summary Style</label>
+            <select class="form-select" id="sumStyle">
+              <option value="abstract">Abstract-style</option>
+              <option value="bullet">Bullet Points</option>
+              <option value="detailed">Detailed Narrative</option>
+              <option value="layman">Plain Language (Layman)</option>
+              <option value="critical">Critical Analysis</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Purpose</label>
+            <select class="form-select" id="sumPurpose">
+              <option value="general">General Overview</option>
+              <option value="literature review">Literature Review</option>
+              <option value="grant proposal">Grant Proposal</option>
+              <option value="conference presentation">Conference Presentation</option>
+              <option value="peer review">Peer Review</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Paper Text / Abstract</label>
+            <textarea class="form-control" id="sumText" rows="10"
+                      placeholder="Paste the paper abstract or full text here…"></textarea>
+          </div>
+          <div class="col-12">
+            <button class="btn-primary-action" id="sumBtn">
+              <i class="bi bi-magic me-2"></i>Generate Summary
+            </button>
+          </div>
+        </div>
+        <div class="result-box mt-4" id="sumResults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: CITATIONS ────────────────────────── -->
+  <section class="tab-pane" id="tab-citations">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-bookmark-star-fill me-2"></i>Citation Manager</h3>
+        <p class="text-muted">Generate and manage formatted citations for your papers.</p>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Source Information</label>
+            <textarea class="form-control" id="citSource" rows="4"
+                      placeholder="e.g., Author: John Smith, Title: Deep Learning for NLP, Journal: Nature Machine Intelligence, Year: 2023, Volume: 5, Pages: 123-145, DOI: 10.1038/..."></textarea>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Citation Style</label>
+            <select class="form-select" id="citStyle">
+              <option value="APA">APA 7th Edition</option>
+              <option value="MLA">MLA 9th Edition</option>
+              <option value="Chicago">Chicago 17th</option>
+              <option value="IEEE">IEEE</option>
+              <option value="Vancouver">Vancouver</option>
+              <option value="Harvard">Harvard</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn-primary-action" id="citGenBtn">
+              <i class="bi bi-bookmark-plus me-2"></i>Generate & Save Citation
+            </button>
+          </div>
+        </div>
+        <div class="result-box mt-4" id="citResult"></div>
+
+        <!-- Saved citations list -->
+        <div class="mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Saved Citations</h5>
+            <button class="btn-outline-sm" id="copyCitationsBtn">
+              <i class="bi bi-clipboard me-1"></i>Copy All
+            </button>
+          </div>
+          <div id="citationsList" class="citations-list">
+            <p class="text-muted fst-italic">No citations saved yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: DRAFT SECTION ────────────────────── -->
+  <section class="tab-pane" id="tab-draft">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-pencil-square me-2"></i>Draft Report Section</h3>
+        <p class="text-muted">Let the AI draft structured sections for your research paper.</p>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Section Type</label>
+            <select class="form-select" id="draftSection">
+              <option value="Introduction">Introduction</option>
+              <option value="Literature Review">Literature Review</option>
+              <option value="Methodology">Methodology</option>
+              <option value="Results">Results</option>
+              <option value="Discussion">Discussion</option>
+              <option value="Conclusion">Conclusion</option>
+              <option value="Abstract">Abstract</option>
+              <option value="Related Work">Related Work</option>
+              <option value="Future Work">Future Work</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Target Word Count</label>
+            <input type="number" class="form-control" id="draftWordCount"
+                   value="300" min="100" max="1000" step="50" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <div class="word-count-hint">100 – 1000 words</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Paper Topic</label>
+            <input type="text" class="form-control" id="draftTopic"
+                   placeholder="e.g., Federated Learning for Privacy-Preserving Medical Imaging" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Additional Context / Notes (optional)</label>
+            <textarea class="form-control" id="draftContext" rows="3"
+                      placeholder="Any specific points, datasets, or findings to include…"></textarea>
+          </div>
+          <div class="col-12">
+            <button class="btn-primary-action" id="draftBtn">
+              <i class="bi bi-file-earmark-richtext me-2"></i>Draft Section
+            </button>
+          </div>
+        </div>
+        <div class="result-box mt-4" id="draftResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: RESEARCH IDEAS ───────────────────── -->
+  <section class="tab-pane" id="tab-ideas">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-lightbulb-fill me-2"></i>Research Idea Generator</h3>
+        <p class="text-muted">Brainstorm novel, feasible research ideas on any topic.</p>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Research Topic / Area</label>
+            <input type="text" class="form-control form-control-lg" id="ideasTopic"
+                   placeholder="e.g., Large Language Models in Education" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Researcher Level</label>
+            <select class="form-select form-select-lg" id="ideasLevel">
+              <option value="undergraduate">Undergraduate</option>
+              <option value="graduate" selected>Graduate</option>
+              <option value="postdoc">Postdoc / Senior</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn-primary-action" id="ideasBtn">
+              <i class="bi bi-stars me-2"></i>Generate Ideas
+            </button>
+          </div>
+        </div>
+        <div class="result-box mt-4" id="ideasResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB: PROJECTS ─────────────────────────── -->
+  <section class="tab-pane" id="tab-projects">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3><i class="bi bi-folder2-open me-2"></i>Research Projects</h3>
+        <p class="text-muted">Organize your research projects and notes in one place.</p>
+      </div>
+      <div class="panel-body">
+        <!-- Create project -->
+        <div class="create-project-form">
+          <div class="row g-2">
+            <div class="col-md-5">
+              <input type="text" class="form-control" id="projectTitle"
+                     placeholder="Project title…" />
+            </div>
+            <div class="col-md-5">
+              <input type="text" class="form-control" id="projectDesc"
+                     placeholder="Short description (optional)…" />
+            </div>
+            <div class="col-md-2">
+              <button class="btn-primary-action w-100" id="createProjectBtn">
+                <i class="bi bi-plus-lg"></i> Create
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects list -->
+        <div id="projectsList" class="projects-list mt-4">
+          <p class="text-muted fst-italic">No projects yet. Create one above.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /main-content -->
+
+<!-- ── Loading overlay ───────────────────────────── -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner">
+    <div class="spinner-ring"></div>
+    <p id="loadingText">Thinking…</p>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────── -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="appToast" class="toast align-items-center border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toastBody">Message</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
